@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>搭建KatoNei bot</title>
+      <link href="/xxbot/"/>
+      <url>/xxbot/</url>
+      
+        <content type="html"><![CDATA[<p>本教程适合ubuntu和debian使用，centos请自行google</p><h1 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h1><p><a href="https://github.com/ArsFy/katonei_bot">https://github.com/ArsFy/katonei_bot</a></p><h1 id="安装依赖环境"><a href="#安装依赖环境" class="headerlink" title="安装依赖环境"></a>安装依赖环境</h1><p>首先，确保你的包是最新的。打开终端并输入<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update &amp;&amp; sudo apt upgrade -y</span><br></pre></td></tr></table></figure></p><h2 id="安装-ImageMagick"><a href="#安装-ImageMagick" class="headerlink" title="安装 ImageMagick"></a>安装 ImageMagick</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install imagemagick -y</span><br></pre></td></tr></table></figure><h2 id="安装-Nodejs-v14-x"><a href="#安装-Nodejs-v14-x" class="headerlink" title="安装 Nodejs v14.x"></a>安装 Nodejs v14.x</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># Ubuntu</span><br><span class="line">curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -</span><br><span class="line">sudo apt-get install -y nodejs</span><br><span class="line"></span><br><span class="line"># Debian</span><br><span class="line">curl -fsSL https://deb.nodesource.com/setup_14.x | bash -</span><br><span class="line">apt-get install -y nodejs</span><br></pre></td></tr></table></figure><h2 id="安装-Mongo-DB"><a href="#安装-Mongo-DB" class="headerlink" title="安装 Mongo DB"></a>安装 Mongo DB</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install mongodb -y</span><br></pre></td></tr></table></figure><h2 id="进入mongo-shell"><a href="#进入mongo-shell" class="headerlink" title="进入mongo shell"></a>进入mongo shell</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo</span><br></pre></td></tr></table></figure><h2 id="新建数据库和用户"><a href="#新建数据库和用户" class="headerlink" title="新建数据库和用户"></a>新建数据库和用户</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use database0 #新建一个名为database0的数据库</span><br></pre></td></tr></table></figure><p>因为不允许存在空数据库所以要插入一个数据<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.foo.insert(&#123;_id:1,name:&quot;test&quot;&#125;)</span><br></pre></td></tr></table></figure><br>新建用户并授权 将 <username> 和 <password> 替换为自定义的用户和密码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">db.createUser(&#123;</span><br><span class="line">    user:&#x27;&lt;username&gt;&#x27;,</span><br><span class="line">    pwd:&#x27;&lt;password&gt;&#x27;,</span><br><span class="line">    roles:[&#x27;readWrite&#x27;]</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure></p><h1 id="开始搭建-bot"><a href="#开始搭建-bot" class="headerlink" title="开始搭建 bot"></a>开始搭建 bot</h1><p>从仓库拉取项目<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install git -y</span><br><span class="line">cd /var/lib &amp;&amp; git clone https://github.com/ArsFy/katonei_bot.git &amp;&amp; cd katonei_bot</span><br></pre></td></tr></table></figure><br>修改配置文件<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cp config.example.json config.json</span><br><span class="line">vim config.json</span><br></pre></td></tr></table></figure><br>将下方各值修改为自己的<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;db_server&quot;: &quot;127.0.0.1:27017&quot;, // MongoDB Server</span><br><span class="line">    &quot;db_name&quot;: &quot;&lt;database&gt;&quot;,          // 数据库名 </span><br><span class="line">    &quot;db_user&quot;: &quot;&lt;username&gt;&quot;,          // 用户名</span><br><span class="line">    &quot;db_pass&quot;: &quot;&lt;password&gt;&quot;,            // 密码</span><br><span class="line">    &quot;cookie&quot;: &quot;12345678_CNy4eVYNKZqRzMfjvgWpHVJz6WdP5p5Y&quot;, // Pixiv Cookie (开启 R18)</span><br><span class="line">    &quot;bot_token&quot;: &quot;123456:Abcdefghijklmn&quot;,   // Telegram Bot Token</span><br><span class="line">    &quot;bot&quot;: &quot;@xxxx_bot&quot;,                     // Telegram Name</span><br><span class="line">    &quot;admin&quot;: [0123456789]                             // Telegram Admin ID (Number)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>获取 Pixiv Cookie请自行google<br>向bot发送一张图片并回复这张图片使用 /addphoto<br>PS: 因为bot第一次运行需要初始化数据库所以此步骤必须执行<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220731124523.png" alt=""><br>运行<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node main.js</span><br></pre></td></tr></table></figure></p><h1 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h1><p>本文转载自<a href="https://blog.greenfishpowered.cn/2022/07/30/%e6%90%ad%e5%bb%ba-katonei-%e6%b6%a9%e6%b6%a9-bot/">绿头的blog</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 杂 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> tg </tag>
+            
+            <tag> bot </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>奈云机场介绍</title>
+      <link href="/naiun/"/>
+      <url>/naiun/</url>
+      
+        <content type="html"><![CDATA[<p>这几天我像往常一样逛tg的时候，看到一个白嫖机场——奈云，我被一个这活动给打动了（bushi)</p><h1 id="机场"><a href="#机场" class="headerlink" title="机场"></a>机场</h1><h2 id="购买"><a href="#购买" class="headerlink" title="购买"></a>购买</h2><p>机场名叫奈云</p><p><a href="https://www.naiun.cc/#/register?code=Kp9uf2zY">注册地址</a></p><p>注册后打开机场界面，如图点击轻量套餐，（这个机场提供免费使用一个月），输入折扣码：QLDK324  即可白嫖</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720124736.png" alt=""></p><h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>首先是连通性测试</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720125142.png" alt=""></p><p>使用 <a href="https://t.me/woicesu">https://t.me/woicesu</a> 的MiaoKo机器人</p><p>然后是速度测试（本地电信，仅供参考）：</p><p>本地测试：</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720132058.png" alt=""></p><p>机场测试：</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720131844.png" alt=""></p><p>怎么说，总体来说是不是很快啊</p><p>还等什么，快去注册</p><p>注册链接： <a href="https://www.naiun.cc/#/register?code=Kp9uf2zY">https://www.naiun.cc/#/register?code=Kp9uf2zY</a></p><p>机场tg群：<a href="https://t.me/v2naiun">https://t.me/v2naiun</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 机场 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> free.机场 </tag>
+            
+            <tag> iplc </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>搭建订阅转换</title>
+      <link href="/subconverter/"/>
+      <url>/subconverter/</url>
+      
+        <content type="html"><![CDATA[<p>本文介绍搭建一个在线订阅地址转换网站.</p><h1 id="开始搭建"><a href="#开始搭建" class="headerlink" title="开始搭建"></a>开始搭建</h1><h2 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h2><h3 id="heroku"><a href="#heroku" class="headerlink" title="heroku"></a>heroku</h3><p>打开<a href="https://github.com/BlueHtml/subconverter-heroku">github项目地址</a>，点个star，并fork此项目<br>打开<a href="https://dashboard.heroku.com/apps">heroku的官网</a>登陆后我们需要获取heroku账号的api_key,按图点击<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716122750.png" alt=""><br>往下翻，如图，复制2框内所示的内容<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716123007.png" alt=""><br>回到我们刚才fork的github项目，如图添加两个名为<code>HEROKU_API_KEY</code><br>和<code>HEROKU_EMAIL</code>的Secret。说明如下:</p><div class="table-container"><table><thead><tr><th>HEROKU_API_KEY</th><th>刚才获取的heroku_api_key</th></tr></thead><tbody><tr><td>HEROKU_EMAIL</td><td>heroku账号的邮箱</td></tr></tbody></table></div><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716123141.png" alt=""></p><p>然后如图，编辑<code>.github/workflows/heroku.yml</code>这个文件，修改<code>heroku_app_name</code>这个的值，不能重复，我建议是在heroku首页新建一个项目，取个不重复的名字，然后复制名字到这并取消创建<img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716130413.png" alt=""></p><p>4.如图，激活actions</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716131017.png" alt="">如图运行action</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716131346.png" alt=""></p><p>5.不出意外的话，这样就代表成功了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716131442.png" alt=""></p><p>同时，heroku账号首页也多了一个项目</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716131536.png" alt=""></p><p>6.访问 以下网址，来检测是否安装成功</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://heroku项目的名字.herokuapp.com/version</span><br></pre></td></tr></table></figure><p>如果显示这样，就成功了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716131838.png" alt=""></p><h3 id="koyeb"><a href="#koyeb" class="headerlink" title="koyeb"></a>koyeb</h3><p>点一下这个图标,然后全部默认就行</p><p><a href="https://app.koyeb.com/deploy?type=docker&amp;name=subconver&amp;ports=8080;http;/&amp;image=jth445600/subconver"><img src="https://www.koyeb.com/static/images/deploy/button.svg" alt="Deploy to Koyeb"></a></p><p><a href="https://github.com/jth445600/subconverter-heroku-koyeb">github项目地址</a></p><p>同样等到如图中1所示，访问以下地址</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">图中2的地址/version</span><br></pre></td></tr></table></figure><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716132607.png" alt=""></p><p>如果是这样就代表成功了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716132836.png" alt=""></p><h3 id="okteto"><a href="#okteto" class="headerlink" title="okteto"></a>okteto</h3><p>首先fork<a href="https://github.com/yunbaitech666/oksubconver">本项目</a> 用github登录okteto <a href="https://cloud.okteto.com/">https://cloud.okteto.com</a></p><blockquote><p>存在拼人品的问题,有可能注册不上,那就换个github账号,一般情况下用了很长时间的github都能正常注册</p></blockquote><p>选择这个<img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220718211755.png" alt=""></p><p>选择用github部署</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220718212006.png" alt=""></p><p>选择这个然后点 ‘launch’</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220718212023.png" alt=""></p><p>然后就不用管了<br>等着部署完毕,大约两分钟的样子</p><p>出现running就是部署好了, 在浏览器打开这个链接</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220718212151.png" alt=""></p><p>如果在浏览器打开出现 504 timeout 503 或者其他什么错误</p><p>解决办法: 开无痕, 换浏览器.</p><p>开一个无痕窗口, 在上图给的链接后边加上 <code>sub?</code> 如果出现下图就是完成了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220718212223.png" alt=""></p><p>到此, 用oketeto部署clash订阅转换后端 subconver就完成了</p><h3 id="northflank"><a href="#northflank" class="headerlink" title="northflank"></a>northflank</h3><p>如图，图中地址为： <a href="https://github.com/jth445600/subconverter-heroku-koyeb-northflank">https://github.com/jth445600/subconverter-heroku-koyeb-northflank</a> ，记得选择http顺便打勾</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720135133.png" alt=""></p><p>等待他部署完成，点击图中按钮复制地址</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720135501.png" alt=""></p><p>新开个标签页，在复制的地址后加”/version“，如果返回的如图所示，就代表成功了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220720135606.png" alt=""></p><h2 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h2><p>前端使用免费的静态网页服务厂商来搭建.我这里推荐vercel，当然，你也可以使用cf pages</p><p>1.fork<a href="https://github.com/CareyWang/sub-web">这个github项目</a></p><p>2.修改默认后端地址，编辑src/views/Subconverter.vue 文件</p><p>在第258行backendOptions，修改后面<code>http://127.0.0.1:25500</code>为刚才heroku和koyeb返回的地址</p><p>注意：后面的<code>/sub?</code>不能删去，heroku地址一般为： <code>应用程序名1.herokuapp.com</code></p><p>koyeb则为这里显示的地址，同理okteto也是显示的</p><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220716133647.png" alt=""></p><p>northflank则是复制的地址</p><p>此外，还能自定义多个后端地址格式如下</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">backendOptions: [</span><br><span class="line">  &#123; value: &quot;https://subsc.ednovas.xyz/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;http://api.tsutsu.cc:520/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://api2.tsutsu.cc/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://api.v1.mk/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://subcon.dlj.tf/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://api.dler.io/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://api.wcc.best/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://api.hope140.live/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://sub.proxypoolv2.tk/sub?&quot; &#125;,</span><br><span class="line">  &#123; value: &quot;https://sub.id9.cc/sub?&quot; &#125;,</span><br><span class="line">],</span><br></pre></td></tr></table></figure><p>3.由于heroku免费账号一个月只有550h的使用时间，所以我们需要多账号，请参考这篇文章<a href="https://blog.imkcp.xyz/cf-workers/">https://blog.imkcp.xyz/cf-workers/</a></p><p>同样是替换为cf pagers的网址或者自定义的workers地址</p><p>最后就是部署到中意的静态网页服务商了</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 节点 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 免费容器 </tag>
+            
+            <tag> heroku </tag>
+            
+            <tag> koyeb </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>搭建开源的 Telegram 人形自走机器人 PagerMaid （支持新旧双版本共存）</title>
+      <link href="/Pagermaid-Pyro/"/>
+      <url>/Pagermaid-Pyro/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Pagermaid-Pyro-简介"><a href="#Pagermaid-Pyro-简介" class="headerlink" title="Pagermaid-Pyro 简介"></a>Pagermaid-Pyro 简介</h1><p>PagerMaid-Pyro 是一个开源的 Telegram 人形自走 Bot 方案，基于 Python 开发，使用 Pyrogram 依赖，功能强大而丰富，它通过响应账号通过其他客户端发出的命令来自动执行一系列任务，可以帮助你打造专属的便利功能</p><h1 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h1><h2 id="开放端口"><a href="#开放端口" class="headerlink" title="开放端口"></a>开放端口</h2><p>由于需要与 Telegram 服务器通信，首先开放服务器端口。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo iptables -P INPUT ACCEPT</span><br><span class="line">sudo iptables -P FORWARD ACCEPT</span><br><span class="line">sudo iptables -P OUTPUT ACCEPT</span><br><span class="line">sudo iptables -F</span><br></pre></td></tr></table></figure></p><h2 id="拉取项目"><a href="#拉取项目" class="headerlink" title="拉取项目"></a>拉取项目</h2><p>在拉取项目之前，首先更新 git ，否则之后可能出现无法更新的情况。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install --upgrade git -y</span><br></pre></td></tr></table></figure><br>拉取项目至 <code>/var/lib/pagermaid_pyro</code> 目录。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /var/lib &amp;&amp; git clone https://github.com/TeamPGM/PagerMaid-Pyro.git pagermaid_pyro &amp;&amp; cd pagermaid_pyro</span><br></pre></td></tr></table></figure></p><h2 id="安装软件包"><a href="#安装软件包" class="headerlink" title="安装软件包"></a>安装软件包</h2><p>首先更新 apt 包：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update &amp;&amp; sudo apt upgrade -y</span><br></pre></td></tr></table></figure><br>完整安装：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install python3-pip imagemagick libwebp-dev neofetch libzbar-dev libxml2-dev libxslt-dev tesseract-ocr tesseract-ocr-all -y</span><br></pre></td></tr></table></figure><br>安装软件包过程中，请等待一段时间，安装完成后，继续安装 Python 依赖包。<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install -r requirements.txt</span><br></pre></td></tr></table></figure><br>如果出现 ERROR: Could not open requirements file: [Errno 2] No such file or directory: ‘requirements.txt’ 报错，请先检查当前目录是否为 /var/lib/pagermaid_pyro ，如果位于该目录仍然报错，请重新执行 拉取项目 步骤。<br>出现以下提示代表安装成功</p><h2 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h2><p>执行以下命令，将配置文件<code>config.gen.yml</code>复制一份并且命名为<code>config.yml</code><br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp config.gen.yml config.yml</span><br></pre></td></tr></table></figure><br>修改<code>config.yml</code> ,api_id和api_hash参考<a href="https://blog.imkcp.xyz/Pagermaid/">这篇文章</a><br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim config.yml</span><br></pre></td></tr></table></figure><br>修改后退出</p><h2 id="登录账号"><a href="#登录账号" class="headerlink" title="登录账号"></a>登录账号</h2><p>运行以下命令登录账号<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m pagermaid</span><br></pre></td></tr></table></figure><br>此步需要填入完整的电话号码（eg：+18888888888，需要带上国际区号）然后 Telegram 会向你的其他客户端发送验证码，填入验证码后，回车，如有两步验证密码，则再输入两步验证密码即可。<br>出现已启动提示，代表登录成功，此时可以去 Telegram 任意聊天发送 ,help 进行测试。<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220705105140.png" alt=""></p><h2 id="守护进程"><a href="#守护进程" class="headerlink" title="守护进程"></a>守护进程</h2><p>首先按下 Ctrl 键和 C 键停止运行<br>然后输入以下命令：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;&#x27;TEXT&#x27; &gt; /etc/systemd/system/pagermaid_pyro.service</span><br><span class="line">[Unit]</span><br><span class="line">Description=PagerMaid-Pyro telegram utility daemon</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">WorkingDirectory=/var/lib/pagermaid_pyro</span><br><span class="line">ExecStart=/usr/bin/python3 -m pagermaid</span><br><span class="line">Restart=always</span><br><span class="line">TEXT</span><br></pre></td></tr></table></figure><br>设置完成后启动程序：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start pagermaid_pyro</span><br></pre></td></tr></table></figure><br>设置为开机自启：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable pagermaid_pyro</span><br></pre></td></tr></table></figure><br>停止应用程序：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop pagermaid_pyro</span><br></pre></td></tr></table></figure></p><h2 id="插件安装"><a href="#插件安装" class="headerlink" title="插件安装"></a>插件安装</h2><p>在任意聊天中发送 ,apt install &lt;插件名&gt; 即可安装。</p><p>python升级参考文档：<br><a href="https://juejin.cn/post/7103717513376038926">https://juejin.cn/post/7103717513376038926</a><br>原文链接：<br><a href="https://owo.cab/32/">https://owo.cab/32/</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 杂 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> vps </tag>
+            
+            <tag> pagermaid </tag>
+            
+            <tag> userbot </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Nginx Proxy Manager搭建</title>
+      <link href="/Nginx-Proxy-Manager/"/>
+      <url>/Nginx-Proxy-Manager/</url>
+      
+        <content type="html"><![CDATA[<p>Nginx Proxy Manager是个个由外国人开发的nginx面板，少了宝塔的功能，对于像我这样只需要用到nginx反代的人，但又不会手动编辑文件十分友好</p><h1 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h1><p>1.更新环境<br>ubuntu和debian<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt update -y &amp;&amp; apt upgrade</span><br></pre></td></tr></table></figure><br>2.安装docker<br>ubuntu和debian<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install docker.io -y &amp;&amp; sudo apt install docker-compose</span><br></pre></td></tr></table></figure><br>用以下命令来检测docker和docker-compose的版本,确保安装成功<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker --version</span><br><span class="line">docker-compose --version</span><br></pre></td></tr></table></figure><br>3.开机自启docker<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable docker</span><br></pre></td></tr></table></figure><br>4.创建并编辑文件<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /home/ &amp;&amp; mkdir npm &amp;&amp; cd npm &amp;&amp; nano docker-compose.yml</span><br></pre></td></tr></table></figure><br>然后输入以下代码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">version: &#x27;3&#x27;</span><br><span class="line">services:</span><br><span class="line">  app:</span><br><span class="line">    image: &#x27;jc21/nginx-proxy-manager:latest&#x27;</span><br><span class="line">    restart: unless-stopped</span><br><span class="line">    ports:</span><br><span class="line">      - &#x27;80:80&#x27;</span><br><span class="line">      - &#x27;81:81&#x27;</span><br><span class="line">      - &#x27;443:443&#x27;</span><br><span class="line">    volumes:</span><br><span class="line">      - ./data:/data</span><br><span class="line">      - ./letsencrypt:/etc/letsencrypt</span><br></pre></td></tr></table></figure><br>切记 <code>ctrl+x</code> 然后输入 <code>y</code> 退出<br>5.安装<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure><br>然后 ip:port 访问面板默认为81<br>初始mail &amp; passwrd<br>Email:    admin@example.com<br>Password: changeme</p><p>参考： github项目<a href="https://github.com/NginxProxyManager/nginx-proxy-manager">https://github.com/NginxProxyManager/nginx-proxy-manager</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 建站 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> nginx </tag>
+            
+            <tag> 面板 </tag>
+            
+            <tag> vps </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>解决workers反代被墙</title>
+      <link href="/cf-workers/"/>
+      <url>/cf-workers/</url>
+      
+        <content type="html"><![CDATA[<p>由于cf workers的域名在国内被污染了，我们暂时无法访问我之前介绍的heroku的workers反代网址，导致节点无法使用，所以就有了本期教程</p><h2 id="自定义域名"><a href="#自定义域名" class="headerlink" title="自定义域名"></a>自定义域名</h2><p>1.这一步你得需要一个域名，一个cf账号<br>2.登录你的cf账号，点进你的域名，点DNS选项，如图添加一个cname解析到workers的域名，不带<code>https://</code>，要开小云朵<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702162004.png" alt=""><br>3.然后，我们点击侧边栏的workers，如图操作<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702162543.png" alt=""><br>4.然后我们等待会，访问自定义的域名，能正常访问就代表成功了，此时你可以去替换你heroku的伪装域名了<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702162829.png" alt=""></p><h2 id="cf-pages"><a href="#cf-pages" class="headerlink" title="cf pages"></a>cf pages</h2><p>除了上面这种方法外，还有就是用cf pages反代了，这个你得需要一个github账号，但是不需要域名<br>1.我们打开<a href="https://github.com">github</a>，新建一个仓库<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702163505.png" alt=""><br>2.新建一个文件<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702163739.png" alt=""><br>3.然后取名为<code>_worker.js</code>,选择一种模式，将下面的代码复制进去，注意替换自己的域名<br>一个账号使用<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">export default &#123;</span><br><span class="line">  async fetch(request, env) &#123;</span><br><span class="line">    let url = new URL(request.url);</span><br><span class="line">    if (url.pathname.startsWith(&#x27;/&#x27;)) &#123;</span><br><span class="line">      url.hostname = &#x27;exepmle.com&#x27;</span><br><span class="line">      let new_request = new Request(url, request);</span><br><span class="line">      return fetch(new_request);</span><br><span class="line">    &#125;</span><br><span class="line">    return env.ASSETS.fetch(request);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>单双日轮换<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">export default &#123;</span><br><span class="line">  async fetch(request, env) &#123;</span><br><span class="line">    const day1 = &#x27;app0.example.com&#x27;</span><br><span class="line">    const day2 = &#x27;app1.example.com&#x27;</span><br><span class="line">    let url = new URL(request.url);</span><br><span class="line">    if (url.pathname.startsWith(&#x27;/&#x27;)) &#123;</span><br><span class="line">      let day = new Date()</span><br><span class="line">      if (day.getDay() % 2) &#123;</span><br><span class="line">        url.hostname = day1</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        url.hostname = day2</span><br><span class="line">      &#125;</span><br><span class="line">      let new_request = new Request(url, request);</span><br><span class="line">      return fetch(new_request);</span><br><span class="line">    &#125;</span><br><span class="line">    return env.ASSETS.fetch(request);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>五天轮换反代<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">export default &#123;</span><br><span class="line">  async fetch(request, env) &#123;</span><br><span class="line">    const day1 = &#x27;app0.example.com&#x27;</span><br><span class="line">    const day2 = &#x27;app1.example.com&#x27;</span><br><span class="line">    const day3 = &#x27;app2.example.com&#x27;</span><br><span class="line">    const day4 = &#x27;app3.example.com&#x27;</span><br><span class="line">    const day5 = &#x27;app4.example.com&#x27;</span><br><span class="line">    let url = new URL(request.url);</span><br><span class="line">    if (url.pathname.startsWith(&#x27;/&#x27;)) &#123;</span><br><span class="line">      let day = new Date().getDay() % 5;</span><br><span class="line">      if (day === 0) &#123;</span><br><span class="line">        url.hostname = day1</span><br><span class="line">      &#125; else if (day === 1) &#123;</span><br><span class="line">        url.hostname = day2</span><br><span class="line">      &#125; else if (day === 2) &#123;</span><br><span class="line">        url.hostname = day3</span><br><span class="line">      &#125; else if (day === 3) &#123;</span><br><span class="line">        url.hostname = day4</span><br><span class="line">      &#125; else if (day === 4) &#123;</span><br><span class="line">        url.hostname = day5</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        url.hostname = day1</span><br><span class="line">      &#125;</span><br><span class="line">      let new_request = new Request(url, request);</span><br><span class="line">      return fetch(new_request);</span><br><span class="line">    &#125;</span><br><span class="line">    return env.ASSETS.fetch(request);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>一周轮换反代<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">export default &#123;</span><br><span class="line">  async fetch(request, env) &#123;</span><br><span class="line">    const day1 = &#x27;app0.example.com&#x27;</span><br><span class="line">    const day2 = &#x27;app1.example.com&#x27;</span><br><span class="line">    const day3 = &#x27;app2.example.com&#x27;</span><br><span class="line">    const day4 = &#x27;app3.example.com&#x27;</span><br><span class="line">    const day5 = &#x27;app4.example.com&#x27;</span><br><span class="line">    const day6 = &#x27;app5.example.com&#x27;</span><br><span class="line">    const day7 = &#x27;app6.example.com&#x27;</span><br><span class="line">    let url = new URL(request.url);</span><br><span class="line">    if (url.pathname.startsWith(&#x27;/&#x27;)) &#123;</span><br><span class="line">      let day = new Date().getDay();</span><br><span class="line">      if (day === 0) &#123;</span><br><span class="line">        url.hostname = day1</span><br><span class="line">      &#125; else if (day === 1) &#123;</span><br><span class="line">        url.hostname = day2</span><br><span class="line">      &#125; else if (day === 2) &#123;</span><br><span class="line">        url.hostname = day3</span><br><span class="line">      &#125; else if (day === 3) &#123;</span><br><span class="line">        url.hostname = day4</span><br><span class="line">      &#125; else if (day === 4) &#123;</span><br><span class="line">        url.hostname = day5</span><br><span class="line">      &#125; else if (day === 5) &#123;</span><br><span class="line">        url.hostname = day6</span><br><span class="line">      &#125; else if (day === 6) &#123;</span><br><span class="line">        url.hostname = day7</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        url.hostname = day1</span><br><span class="line">      &#125;</span><br><span class="line">      let new_request = new Request(url, request);</span><br><span class="line">      return fetch(new_request);</span><br><span class="line">    &#125;</span><br><span class="line">    return env.ASSETS.fetch(request);</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>保存文件<br>4.打开<a href="https://dash.cloudflare.com/">cf</a>，点击侧边栏的pages，新建一个项目<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702164541.png" alt=""><br>5.链接自己的github账号，选择刚刚创建的项目，然后点击”Begin setup”<br>6.起完名字后点击“Save and Deploy”<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702164923.png" alt=""><br>7.等待部署完成，然后依旧是替换伪装域名<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/cfworkers/20220702165112.png" alt=""><br>这样，你的workers就能在国内正常访问了</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 杂 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> cloudflare </tag>
+            
+            <tag> workers </tag>
+            
+            <tag> pagers </tag>
+            
+            <tag> github </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>白嫖Azure的远程桌面</title>
+      <link href="/azdesktop/"/>
+      <url>/azdesktop/</url>
+      
+        <content type="html"><![CDATA[<p>本教程使用 Azure Cloud Shell 在 Microsoft Learn 沙盒上创建虚拟机。<br>😎完全免费的四小时 RDP。</p><h1 id="教程"><a href="#教程" class="headerlink" title="教程"></a>教程</h1><p>1.打开<a href="https://docs.microsoft.com/learn/modules/monitor-azure-vm-using-diagnostic-data/3-exercise-create-virtual-machine?activate-azure-sandbox=true">这个网址</a><br>点击登录以激活沙盒<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604181807.png" alt=""><br>登录自己的账号，点击激活沙盒，通过人机验证<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604182138.png" alt=""><br>点击检查权限，再点击接受<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604182230.png" alt=""><br>等待一段时间后，成功后如图所示<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604182434.png" alt=""><br>PS:<img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604182510.png" alt="">如果再以上步骤中出现了此种情况，则根据自身情况验证手机<br>2.在右边的代码框里输入以下代码<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -skLO bit.do/azurewinvmplus ; chmod +x azurewinvmplus ; ./azurewinvmplus</span><br></pre></td></tr></table></figure><br>或者<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -skLO bit.do/azurewin11vm ; chmod +x azurewin11vm ; ./azurewin11vm</span><br></pre></td></tr></table></figure><br>两者的区别就在于第二个一键部署win11，第一个则有更多选择。例如：系统和地区<br>3.我以第一个代码为演示，选择vps的地区<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604183034.png" alt=""><br>4.选择vps的操作系统<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604183055.png" alt=""><br>5.选择vps的配置，然后等待他部署完成<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604183147.png" alt=""><br>6.等到出现这个界面就代表可以食用了<br><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220604183449.png" alt=""><br>7.然后使用win系统自带的远程软件连接就行,点击任务栏上的搜索，搜索远程就有</p><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://github.com/kmille36/Windows-11-VPS">https://github.com/kmille36/Windows-11-VPS</a><br><a href="https://youtu.be/bwY8dt0YKgU">https://youtu.be/bwY8dt0YKgU</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Free </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> free </tag>
+            
+            <tag> azure </tag>
+            
+            <tag> RDP </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>哪吒监控面板搭建</title>
+      <link href="/nezha/"/>
+      <url>/nezha/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p> <strong>哪吒监控</strong> 是一款一站式轻监控轻运维系统。支持系统状态、HTTP(SSL 证书变更、即将到期、到期)、TCP、Ping 监控报警，计划任务和在线终端。</p><h1 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h1><h2 id="cf"><a href="#cf" class="headerlink" title="cf"></a>cf</h2><p>我们先在cf上添加两个解析，分别解析到你的VPS上，你当做探针网页的解析要开小云朵，而另一个解析则是方便我们记忆，不用开小云朵，如下图所示</p><p><img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319131926002.png" alt="image-20220319131926002"></p><h2 id="github"><a href="#github" class="headerlink" title="github"></a>github</h2><p>我们创建一个OAuth Apps</p><p>打开<a href="https://github.com/settings/developers">https://github.com/settings/developers</a> 这个网址，点击New OAuth App</p><p><img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319132241815.png" alt="image-20220319132241815"></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://你的域名</span><br><span class="line">https://你的域名/oauth2/callback</span><br></pre></td></tr></table></figure><p>输入完之后点绿色的按钮</p><p>我们先把Client ID复制下来，在依次点击复制Client secrets，并保存下来<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319132445351.png" alt="image-20220319132445351"></p><h2 id="vps"><a href="#vps" class="headerlink" title="vps"></a>vps</h2><p>首先我们得安装宝塔面板，可以参考<a href="https://blog.imkcp.xyz/2022/02/26/IBMbt/">我上一期博客</a>方法都是一样的</p><p>原作者项目地址：<a href="https://github.com/naiba/nezha">https://github.com/naiba/nezha</a> 我们先输入这串代码</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -L https://raw.githubusercontent.com/naiba/nezha/master/script/install.sh  -o nezha.sh &amp;&amp; chmod +x nezha.sh</span><br><span class="line">sudo ./nezha.sh</span><br></pre></td></tr></table></figure><p>然后按照提示输入信息。注意：为了让后面顺利进行，访问端口和RPC端口默认就好，如图</p><p><img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319134203051.png" alt="image-20220319134203051"></p><p>接下来我们打开宝塔，新建一个网站，数据库之类的不用装</p><p>添加完之后先配置ssl，然后 <a href="https://你的域名，这样就成功了![image-20220319134544042](https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319134544042.png">https://你的域名，这样就成功了![image-20220319134544042](https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319134544042.png</a>)</p><p>然后就是配置反代，输入好对应的内容后点击提交<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319134715490.png" alt="image-20220319134715490"><br>注：文中目标url有错误，应该是填<code>http://127.0.0.1</code></p><p>编辑反向代理，把下面这串代码复制进去点保存<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319134830402.png" alt="image-20220319134830402"></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">location /</span><br><span class="line">&#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8008;</span><br><span class="line">    proxy_set_header Host $host;</span><br><span class="line">&#125;</span><br><span class="line">location /ws</span><br><span class="line">&#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8008;</span><br><span class="line">    proxy_http_version 1.1;</span><br><span class="line">    proxy_set_header Upgrade $http_upgrade;</span><br><span class="line">    proxy_set_header Connection &quot;Upgrade&quot;;</span><br><span class="line">    proxy_set_header Host $host;</span><br><span class="line">&#125;</span><br><span class="line">location /terminal</span><br><span class="line">&#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8008;</span><br><span class="line">    proxy_http_version 1.1;</span><br><span class="line">    proxy_set_header Upgrade $http_upgrade;</span><br><span class="line">    proxy_set_header Connection &quot;Upgrade&quot;;</span><br><span class="line">    proxy_set_header Host $host;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>然后访问网站，进入到这个界面就代表成功了</p><p><img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319135048193.png" alt="image-20220319135048193"></p><p>我们登录之后进入后台，点击添加主机，输入对应的信息，然后点击添加，他会给你一个秘钥，我们密钥复制下来<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319135647398.png" alt=""></p><h2 id="被监控VPS"><a href="#被监控VPS" class="headerlink" title="被监控VPS"></a>被监控VPS</h2><p>这时候我们连接上要被监控的VPS，输入这串代码</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl -L https://raw.githubusercontent.com/naiba/nezha/master/script/install.sh  -o nezha.sh &amp;&amp; chmod +x nezha.sh</span><br><span class="line">sudo ./nezha.sh</span><br></pre></td></tr></table></figure><p><img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319140133638.png" alt="image-20220319140133638"></p><p>在返回你的网站，你就会发现你所监控的VPS就出现了<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220319140154203.png" alt="image-20220319140154203"> </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 杂 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CloudFlare </tag>
+            
+            <tag> github </tag>
+            
+            <tag> 域名 </tag>
+            
+            <tag> VPS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>使用IBM免费服务器搭建宝塔面板</title>
+      <link href="/IBMbt/"/>
+      <url>/IBMbt/</url>
+      
+        <content type="html"><![CDATA[<p>搭建准备：一台PC,一个可用的IBM LINUX ONE VPS。</p><p>1.安装宝塔面板（7.7.0）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O install.sh http://f.cccyun.cc/bt/install_6.0.sh &amp;&amp; bash install.sh</span><br></pre></td></tr></table></figure><p>此时无需进入</p><p>2.解除宝塔绑定限制</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate https://10g.biz/downloads/LinuxPanel.zip &amp;&amp; unzip LinuxPanel.zip &amp;&amp; bash /root/panel/update.sh &amp;&amp; rm -f /www/server/panel/data/bind.pl</span><br></pre></td></tr></table></figure><p>3.安装宝塔面板（7.6.0）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O install.sh http://v7.hostcli.com/install/install-ubuntu_6.0.sh &amp;&amp; sudo bash install.sh</span><br></pre></td></tr></table></figure><p>4.绿化（变为纯净版）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://v7.hostcli.com/install/update6.sh|bash</span><br></pre></td></tr></table></figure><p>开放所有端口</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">iptables -P INPUT ACCEPT</span><br><span class="line">iptables -P FORWARD ACCEPT</span><br><span class="line">iptables -P OUTPUT ACCEPT</span><br><span class="line">iptables -F</span><br></pre></td></tr></table></figure><p>Ubuntu镜像默认设置了Iptable规则，关闭它</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt-get purge netfilter-persistent</span><br><span class="line">reboot</span><br></pre></td></tr></table></figure><p>或者强制删除</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf /etc/iptables &amp;&amp; reboot</span><br></pre></td></tr></table></figure><p>6.进入面板</p><p>你的服务器ip:8888</p><p>如有问题</p><p>请在TG频道<a href="https://t.me/smallhousechat">https://t.me/smallhousechat</a></p><p>TG群组<a href="https://t.me/onlysmallhouse">https://t.me/onlysmallhouse</a></p><p>进行反馈</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> IBM </tag>
+            
+            <tag> 宝塔 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>一个很好的机场测速工具--ssrspeedn</title>
+      <link href="/ssrspeedn/"/>
+      <url>/ssrspeedn/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>ssrspeedn是一个机场测速工具，它可以测试节点是否解锁流媒体，还有是某中转。比stairspeedtest-reborn更好用，就是不支持单节点测速</p><h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><h3 id="下载工具"><a href="#下载工具" class="headerlink" title="下载工具"></a>下载工具</h3><p>1.由于这个工具是基于python开发的，所以我们先要下载python，<a href="https://www.python.org/">python官网</a>（建议开代理），鼠标移到downloads，然后点击Python版本别管它<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215185251931.png" alt="image-20220215185251931"></p><p>下载后打开文件，勾选”Add Python 3.10 to PATH”这个框框，然后点击“Install Now”<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215193920497.png" alt="image-20220215193920497"></p><p>安装完后点击close</p><p>2.接下来就是下载工具本体了</p><p><a href="https://github.com/PauperZ/SSRSpeedN">项目地址</a>   <a href="https://github.com/PauperZ/SSRSpeedN/releases/tag/v1.03">下载地址</a></p><p>打开下载地址，点击这个开始下载，注：本教程只介绍windows使用教程，linux请看作者文档<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215194822389.png" alt="image-20220215194822389"></p><p>下载后解压文件，以管理员权限打开“开始测速.bat”这个文件<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215194946148.png" alt="image-20220215194946148"></p><p>然后输入“2”，自动安装依赖<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215195046181.png" alt="image-20220215195046181"></p><p>也可以用<code>pip install -r requirements.txt</code>来安装</p><h3 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h3><p>安装完依赖之后推出，然后重新打开“开始测速.bat”这个文件（不要用管理员权限</p><p>然后输入1，再输入订阅地址，如图所示<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215195707564.png" alt="image-20220215195707564"></p><h2 id="自定义配置"><a href="#自定义配置" class="headerlink" title="自定义配置"></a>自定义配置</h2><p>这里只介绍简单的配置，像什么改名字和改频道，这个自己摸索或者私聊来问我</p><p>自定义颜色</p><p>​    在 ssrspeed_config.json 文件下第 42 行，采用速度（MB/s）对应输出颜色 （RGB 256）方式，因为我喜欢绿色，所以我全是绿色<img src="https://gcore.jsdelivr.net/gh/dejikcp/tuchuang@main/image-20220215195909597.png" alt="image-20220215195909597"></p><p>·自定义字体</p><p>​     下载字体文件放入 /resources/fonts/ 文件夹下，修改 ssrspeed_config.json 文件下第 34 行，本项目自带两个字体</p><p>· 修改测速项目</p><p>​       在 ssrspeed_config.json 文件下第 16 行及第 25 行，可以设置是否进行udp类型及Netflix解锁测试，        默认允许。在 21-23行可以分别设置是否进行 ping / Google ping 测试，默认允许，若不进行测试，对应项在测速图上显示为0</p><p>· 修改测速方式</p><p>​    在 ssrspeed_config.json 文件下第 24 行，可以设置采用单/多线程测速方式或均速/最高速测速方式，默认为前者</p><p>我就懒得放图了，我觉得也没多少人愿意改，会改的估计也不需要图</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 杂 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 测速 </tag>
+            
+            <tag> ssrspeedn </tag>
+            
+            <tag> 机场 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>自动续期freenom免费域名，并添加tg机器人通知</title>
+      <link href="/freenomxq/"/>
+      <url>/freenomxq/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>freenom是一家提供免费域名的厂商，应该都有账号吧，没有自己去申请，很简单，可域名到期后又不想重新注册域名，所以自动续期就来了</p><h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>·一个能使用github actions的账号，一个freenom域名，一台能上网的设备，telegram账号</p><h1 id="续期"><a href="#续期" class="headerlink" title="续期"></a>续期</h1><h2 id="配置github-actions"><a href="#配置github-actions" class="headerlink" title="配置github actions"></a>配置github actions</h2><p>先fork仓库<a href="https://github.com/luolongfei/freenom">https://github.com/luolongfei/freenom</a>  ，点击actions 再随便点击set up a workflow yourself</p><p><img src="https://gcore.jsdelivr.net/gh/Misaka-blog/tuchuang@master/20220417020608.png" alt="image-20220207211302141"></p><p>把下面这一串代码全选粘贴</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">name: Freenom Auto Renew</span><br><span class="line"></span><br><span class="line">on:</span><br><span class="line">  workflow_dispatch:</span><br><span class="line">  schedule:</span><br><span class="line">    - cron: <span class="number">00</span> <span class="number">02</span> * * *</span><br><span class="line">jobs:</span><br><span class="line">  run-it:</span><br><span class="line">    runs-on: ubuntu-latest</span><br><span class="line">    name: Run it on action</span><br><span class="line">    steps:</span><br><span class="line">      - name: Checkout master</span><br><span class="line">        uses: actions/checkout@v2</span><br><span class="line">      - name: Setting up PHP</span><br><span class="line">        uses: shivammathur/setup-php@v2</span><br><span class="line">        with:</span><br><span class="line">          php-version: <span class="string">&#x27;7.4&#x27;</span></span><br><span class="line">      - name: Setting up Freenom account</span><br><span class="line">        run: |</span><br><span class="line">          cp .env.example .env</span><br><span class="line">          <span class="keyword">if</span> [[ (<span class="string">&#x27;$&#123;&#123; secrets.FREENOM_USERNAME &#125;&#125;&#x27;</span> == <span class="string">&#x27;&#x27;</span> || <span class="string">&#x27;$&#123;&#123; secrets.FREENOM_PASSWORD &#125;&#125;&#x27;</span> == <span class="string">&#x27;&#x27;</span>) &amp;&amp; <span class="string">&#x27;$&#123;&#123; secrets.MULTIPLE_ACCOUNTS &#125;&#125;&#x27;</span> == <span class="string">&#x27;&#x27;</span> ]]; then <span class="keyword">echo</span> <span class="string">&#x27;你在 Github 的当前项目的 Settings &gt; Secrets 画面没有设置任何与账户信息相关的 secret 值，无法正常运行，请添加新的 secret 值，设置 FREENOM_USERNAME 与 FREENOM_PASSWORD，或者设置 MULTIPLE_ACCOUNTS，以及 .env 文件中其它必要项，各项的具体含义与格式参考本项目 .env 文件中的说明。&#x27;</span>; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.FREENOM_USERNAME &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^FREENOM_USERNAME=.*$/FREENOM_USERNAME=&#x27;$&#123;&#123; secrets.FREENOM_USERNAME &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.FREENOM_PASSWORD &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^FREENOM_PASSWORD=.*$/FREENOM_PASSWORD=&#x27;$&#123;&#123; secrets.FREENOM_PASSWORD &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.MULTIPLE_ACCOUNTS &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^MULTIPLE_ACCOUNTS=.*$/MULTIPLE_ACCOUNTS=&#x27;$&#123;&#123; secrets.MULTIPLE_ACCOUNTS &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.MAIL_USERNAME &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^MAIL_USERNAME=.*$/MAIL_USERNAME=&#x27;$&#123;&#123; secrets.MAIL_USERNAME &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.MAIL_PASSWORD &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^MAIL_PASSWORD=.*$/MAIL_PASSWORD=&#x27;$&#123;&#123; secrets.MAIL_PASSWORD &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.TO &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^TO=.*$/TO=&#x27;$&#123;&#123; secrets.TO &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.MAIL_ENABLE &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^MAIL_ENABLE=.*$/MAIL_ENABLE=&#x27;$&#123;&#123; secrets.MAIL_ENABLE &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.TELEGRAM_CHAT_ID &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^TELEGRAM_CHAT_ID=.*$/TELEGRAM_CHAT_ID=&#x27;$&#123;&#123; secrets.TELEGRAM_CHAT_ID &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.TELEGRAM_BOT_TOKEN &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^TELEGRAM_BOT_TOKEN=.*$/TELEGRAM_BOT_TOKEN=&#x27;$&#123;&#123; secrets.TELEGRAM_BOT_TOKEN &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.TELEGRAM_BOT_ENABLE &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^TELEGRAM_BOT_ENABLE=.*$/TELEGRAM_BOT_ENABLE=&#x27;$&#123;&#123; secrets.TELEGRAM_BOT_ENABLE &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          <span class="keyword">if</span> [ <span class="string">&#x27;$&#123;&#123; secrets.NOTICE_FREQ &#125;&#125;&#x27;</span> != <span class="string">&#x27;&#x27;</span> ]; then sed -i <span class="string">&quot;s/^NOTICE_FREQ=.*$/NOTICE_FREQ=&#x27;$&#123;&#123; secrets.NOTICE_FREQ &#125;&#125;&#x27;/&quot;</span> .env; fi</span><br><span class="line">          sed -i <span class="string">&quot;s/^ON_GITHUB_ACTIONS=.*$/ON_GITHUB_ACTIONS=true/&quot;</span> .env</span><br><span class="line">      - name: Renewing Freenom domains</span><br><span class="line">        run: |</span><br><span class="line">          php run</span><br></pre></td></tr></table></figure><p>如图,保存即可<img src="https://gcore.jsdelivr.net/gh/imkcpchuang/blog@main/blog/image-20220207211622849.png" alt="image-20220207211622849"></p><h2 id="配置TG机器人"><a href="#配置TG机器人" class="headerlink" title="配置TG机器人"></a>配置TG机器人</h2><p>打开TG，搜索botfather<img src="https://gcore.jsdelivr.net/gh/imkcpchuang/blog@main/blog/image-20220207212252009.png" alt="image-20220207212252009"></p><p>然后输入/mybots点击你需要用的机器人，再点击API TOKEN，点击这一长串蓝色字体就复制好了，记得保存下来</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpchuang/blog@main/blog/image-20220207212456352.png" alt="image-20220207212456352"></p><h2 id="配置github-actions-secrets"><a href="#配置github-actions-secrets" class="headerlink" title="配置github actions secrets"></a>配置github actions secrets</h2><p>进入freenom域名续期的项目，我懒自己看<img src="https://gcore.jsdelivr.net/gh/imkcpchuang/blog@main/blog/image-20220207212739683.png" alt="image-20220207212739683"></p><p>分别新建一下几个配置<img src="https://gcore.jsdelivr.net/gh/imkcpchuang/blog@main/blog/image-20220207213046653.png" alt="image-20220207213046653"></p><p>具体如下表所示</p><div class="table-container"><table><thead><tr><th>name</th><th style="text-align:left">value</th></tr></thead><tbody><tr><td>FREENOM_USERNAME</td><td style="text-align:left">freenom账号</td></tr><tr><td>FREENOM_PASSWORD</td><td style="text-align:left">freenom账号密码</td></tr><tr><td>MAIL_ENABLE</td><td style="text-align:left">false（是否启用邮箱推送</td></tr><tr><td>TELEGRAM_CHAT_ID</td><td style="text-align:left">TG chat_id 给@userinfobot发送/start获取</td></tr><tr><td>TELEGRAM_BOT_TOKEN</td><td style="text-align:left">刚才复制的机器人token</td></tr><tr><td>TELEGRAM_BOT_ENABLE</td><td style="text-align:left">true（启用机器人推送</td></tr></tbody></table></div><p>这样就行了，这个脚本会在每天0:0UTC时间2点自动启动</p><h1 id="鸣谢"><a href="#鸣谢" class="headerlink" title="鸣谢"></a>鸣谢</h1><p>感谢Misaka NO提供的actions文件，感谢freenom提供免费域名</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 杂 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> actions，github </tag>
+            
+            <tag> freenom </tag>
+            
+            <tag> 域名 </tag>
+            
+            <tag> telegram </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Pagermaid--TG人形自走机器人</title>
+      <link href="/Pagermaid/"/>
+      <url>/Pagermaid/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>你是否在TG群里看见一些人形如机器人，能-s偷取你的贴纸还能-atll来@群里的全部程成员，这就是今天要介绍的内容，Pagermaid人形自走机器人</p><h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><h2 id="准备材料"><a href="#准备材料" class="headerlink" title="准备材料"></a>准备材料</h2><p>·一台能上TG的VPS，系统最好是Ubuntu20.04，一台能上网的电脑，一个TG账号，还有ssh工具，我推荐FinalShell</p><h2 id="拉取项目"><a href="#拉取项目" class="headerlink" title="拉取项目"></a>拉取项目</h2><p>Pagermaid项目托管在github，所以首先要检查VPS是否安装git软件包，且当git软件包版过低时，无法实现程序的自动更新，所以首先要安装/升级git软件包：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install --upgrade git -y</span><br></pre></td></tr></table></figure><p>安装完之后从仓库拉取项目</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /var/lib &amp;&amp; git clone https://github.com/TeamPGM/PagerMaid-Modify.git pagermaid &amp;&amp; cd pagermaid</span><br></pre></td></tr></table></figure><p>拉取的项目在文件夹var/lib/pagermaid文件下（不在root文件夹下</p><h2 id="安装软件包"><a href="#安装软件包" class="headerlink" title="安装软件包"></a>安装软件包</h2><h3 id="梭哈"><a href="#梭哈" class="headerlink" title="梭哈"></a>梭哈</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt-get install imagemagick neofetch libwebp-dev libzbar-dev libzbar-dev libxml2-dev libxslt-dev tesseract-ocr tesseract-ocr-all redis-server python3-pip  -y</span><br></pre></td></tr></table></figure><h2 id="安装依赖包"><a href="#安装依赖包" class="headerlink" title="安装依赖包"></a>安装依赖包</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install -r requirements.txt</span><br></pre></td></tr></table></figure><h2 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h2><p>将配置 <code>config.gen.yml</code> 文件复制一份并且命名为 <code>config.yml</code></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> config.gen.yml config.yml</span><br></pre></td></tr></table></figure><p>然后去<a href="https://my.telegram.org/">telegram官网</a></p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220130145720068.png" alt="image-20220130145720068">然后点击这个创建</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220130145807677.png" alt="image-20220130145807677"></p><p>信息随便填<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220130150030976.png" alt="image-20220130150030976">然后到这个界面，吧app spi_id和hash复制下来，填入api_key和hash</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220130150049369.png" alt="image-20220130150049369"></p><p>这是vim编辑器，如果你会你随便</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi config.yml</span><br></pre></td></tr></table></figure><p>不会的话就用finalshell，/var/lib/pagermaid</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220130150509610.png" alt="image-20220130150509610"></p><p>然后在弹出的对话框修改相应值</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220130150619167.png" alt="image-20220130150619167"></p><h2 id="登录账号"><a href="#登录账号" class="headerlink" title="登录账号"></a>登录账号</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m pagermaid</span><br></pre></td></tr></table></figure><p>此步需要填入完整的电话号码（eg：<code>+12569986522</code>）然后 tg 会发给你的其他客户端发送验证码，填入验证码后，回车，如有两步验证密码，则再输入两步验证密码即可。现在你可以再任意对话发送  -help获取机器人运行情况</p><h2 id="设置守护进程"><a href="#设置守护进程" class="headerlink" title="设置守护进程"></a>设置守护进程</h2><p>此步骤可以方便 <code>pagermaid</code> 的自动运行，您无需在 <code>pagermaid</code> 意外退出后重新登录主机进行操作。</p><p>停止运行</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctrl + c</span><br></pre></td></tr></table></figure><p>然后设置</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> &lt;&lt;<span class="string">&#x27;TEXT&#x27;</span> &gt; /etc/systemd/system/pagermaid.service</span><br><span class="line">[Unit]</span><br><span class="line">Description=PagerMaid-Modify telegram utility daemon</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">WorkingDirectory=/var/lib/pagermaid</span><br><span class="line">ExecStart=/usr/bin/python3 -m pagermaid</span><br><span class="line">Restart=always</span><br><span class="line">TEXT</span><br></pre></td></tr></table></figure><p>复制以上代码，全部</p><h2 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h2><p>启动程序：<code>systemctl start pagermaid</code></p><p>设置为开机自启：<code>systemctl enable pagermaid</code></p><p>停止程序：<code>systemctl stop pagermaid</code></p><p>安装插件：<code>-apt install 插件名</code></p><p>帮助：<code>-help</code></p><p>带-的全在TG里输入</p><p>这是插件列表：<a href="https://index.xtaolabs.com/">https://index.xtaolabs.com/</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> TG </tag>
+            
+            <tag> hax </tag>
+            
+            <tag> Pagermaid </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>hax续期</title>
+      <link href="/haxxq/"/>
+      <url>/haxxq/</url>
+      
+        <content type="html"><![CDATA[<h1 id="hax续期"><a href="#hax续期" class="headerlink" title="hax续期"></a>hax续期</h1><h2 id="手动"><a href="#手动" class="headerlink" title="手动"></a>手动</h2><p><a href="https://hax.co.id/vps-renew/">网址</a>进去以后输入下hax的官网 hax.co.id 把下面那个框框勾上就行，然后通过人机验证，然后在点击Renew VPS按钮，这样就成功了，如果失败了，就刷新下网页重新来<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128181452788.png" alt="image-20220128181452788"></p><h2 id="自动"><a href="#自动" class="headerlink" title="自动"></a>自动</h2><p>此教程需要github账号且能顺利运行github actions</p><p>进入<a href="https://github.com">github的网页</a>新建仓库<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128181736736.png" alt="image-20220128181736736"></p><p>如图所示<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128181908511.png" alt="image-20220128181908511"></p><p>点击actions按钮，在点击“configure”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128182026747.png" alt="image-20220128182026747"></p><p>然后全选左边的代码，把这一串代码粘贴进去</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">name: &#x27;Hax Auto Renew&#x27;</span><br><span class="line"></span><br><span class="line">on:</span><br><span class="line">  workflow_dispatch:</span><br><span class="line">  schedule:</span><br><span class="line">    - cron: &#x27;0 13 */1 * *&#x27;</span><br><span class="line">jobs:</span><br><span class="line">  hax_renew:</span><br><span class="line">    runs-on: windows-2022</span><br><span class="line">    </span><br><span class="line">    steps:</span><br><span class="line">      - name: &#x27;Renewing Hax VPS ....&#x27; </span><br><span class="line">        shell: cmd</span><br><span class="line">        env:</span><br><span class="line">          SECRET_USERNAME: $&#123;&#123; secrets.USERNAME &#125;&#125;</span><br><span class="line">          SECRET_PASSWORD: $&#123;&#123; secrets.PASSWORD &#125;&#125;</span><br><span class="line">        run: |</span><br><span class="line">         curl -sSL -O https://github.com/CoiaPrant/Hax_extend/raw/main/HaxAutoReNew.exe</span><br><span class="line">         HaxAutoReNew.exe -user &quot;%SECRET_USERNAME%&quot; -password &quot;%SECRET_PASSWORD%&quot;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128182412863.png" alt="image-20220128182412863"></p><p>如上图，然后再点击actions按钮，依次点击<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128182852967.png" alt="image-20220128182852967"></p><p>再点击all workflows按钮，这样就代表成功运行了，就静静等待，我也不知道能不能成功续期 <img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128182953447.png" alt="image-20220128182953447"></p><h1 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h1><p><a href="https://github.com/CoiaPrant/Hax_extend">https://github.com/CoiaPrant/Hax_extend</a> 作者的原仓库，如果没用，也不要说什么</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> hax </tag>
+            
+            <tag> VPS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>使用hax，cf和x-ui搭建免费节点</title>
+      <link href="/haxjd/"/>
+      <url>/haxjd/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上期我们申请到了hax免费的VPS，那么现在就教大家来搭建节点，如果没有ipv6的话就可以放弃了，估计是用不了</p><h2 id="准备材料"><a href="#准备材料" class="headerlink" title="准备材料"></a>准备材料</h2><p>·一个域名，hax vps，一台能上网的设备</p><h2 id="搭建节点"><a href="#搭建节点" class="headerlink" title="搭建节点"></a>搭建节点</h2><h3 id="配置cf"><a href="#配置cf" class="headerlink" title="配置cf"></a>配置cf</h3><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128151451860.png" alt="image-20220128151451860"></p><p>ipv6地址填hax的，切记代理状态一定要打开，这是让cf来接管我们的流量，另外在进入SSL/TLS里的概述，将加密方式改为完全，如图所示<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128151740935.png" alt="image-20220128151740935"></p><p>然后申请证书，如图所示，然后点击创建就有了，切记要复制下来<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128152028348.png" alt="image-20220128152028348"></p><h3 id="VPS操作"><a href="#VPS操作" class="headerlink" title="VPS操作"></a>VPS操作</h3><h4 id="搭建x-ui"><a href="#搭建x-ui" class="headerlink" title="搭建x-ui"></a>搭建x-ui</h4><p>输入以下命令</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash &lt;(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)</span><br></pre></td></tr></table></figure><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128152236501.png" alt=""></p><p>这样就代表成功了</p><p>接着在浏览器地址栏输入 [ipv6地址]:54321进入x-ui的界面ipv6地址替换自己hax的地址，切记，别开代理，默认用户名和密码都是admin，现在就进入了面板<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128152744588.png" alt="image-20220128152744588"></p><h4 id="配置节点"><a href="#配置节点" class="headerlink" title="配置节点"></a>配置节点</h4><p>进入x-ui面板后点击入站列表，点击蓝色的加号，协议选择vmess，操作如下，然后点击添加<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128153235656.png" alt="image-20220128153235656"></p><p>然后点击查看复制链接，直接复制到v2ray客户端里<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128153355311.png" alt=""></p><h3 id="测速图"><a href="#测速图" class="headerlink" title="测速图"></a>测速图</h3><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/second2022-01-28-15-40-05.png" alt="2022-01-28-15-40-05"></p><p>电信300M</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Free </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CloudFlare </tag>
+            
+            <tag> CDN </tag>
+            
+            <tag> 节点 </tag>
+            
+            <tag> 科学上网 </tag>
+            
+            <tag> 域名 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>申请hax免费VPS</title>
+      <link href="/hax/"/>
+      <url>/hax/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Hax这个网站提供了免费的ipv6 vps，还提供了免费的网络虚拟空间服务，本篇文章就来分享白嫖hax IPV6 vps的方法，和连接方法</p><h2 id="注册账号"><a href="#注册账号" class="headerlink" title="注册账号"></a>注册账号</h2><p>打开<a href="https://hax.co.id/">官网</a>点击右上角的“Register”</p><p>在TG上打开<a href="https://t.me/HaxTG_bot">HaxTG_bot</a>输入/gitid获取自己的telegram id，复制到网页中，点击”Submit”按钮<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128102231623.png" alt="image-20220128102231623"></p><p>等会会在telegarm上收到bot发来的验证码，输入验证码，然后设置账号密码，登录账号</p><p>登录之后，点击右上角的“VPS”-“Create VPS”<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128102508528.png" alt="image-20220128102508528"></p><p>参考图上，然后点击“CREATE VPS”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128102925335.png" alt="image-20220128102925335"></p><p>点击”VPS Info”，等几分钟后刷新网页，这样就代表成功了<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128103153106.png" alt="image-20220128103153106"></p><h2 id="连接VPS"><a href="#连接VPS" class="headerlink" title="连接VPS"></a>连接VPS</h2><h3 id="有ipv6"><a href="#有ipv6" class="headerlink" title="有ipv6"></a>有ipv6</h3><p>复制ipv6地址后打开ssh工具，我以Xshell举例，在主机那一栏填ipv6地址</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128103405285.png" alt="image-20220128103405285"></p><p>然后点击“用户身份验证”，如图</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128103551007.png" alt="image-20220128103551007"></p><p>这样就代表OK了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128103645096.png" alt="image-20220128103645096"></p><h3 id="没有ipv6"><a href="#没有ipv6" class="headerlink" title="没有ipv6"></a>没有ipv6</h3><h4 id="Web-Terminal"><a href="#Web-Terminal" class="headerlink" title="Web Terminal"></a>Web Terminal</h4><p>打开<a href="https://ssh.hax.co.id/">ssh.hax.co.id</a></p><p>输入自己VPS的ipv6地址，用户名root和VPS密码，点击”Connect”<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128104007453.png" alt="image-20220128104007453"></p><p>这样就成功了</p><h4 id="ipv4转发"><a href="#ipv4转发" class="headerlink" title="ipv4转发"></a>ipv4转发</h4><p>打开开Hax的<a href="https://hax.co.id/ipv6-to-ipv4/">IPV4 to IPV6</a>页面，如图</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128104311093.png" alt="image-20220128104311093"></p><p>然后点击蓝色的按钮，如果出现了这样，就代表转发的端口被占用了，需要换一个<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128104413923.png" alt="image-20220128104413923"></p><p>通过不断的换，，如果这样，就代表成功了，这个仅7天内有效<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128104741567.png" alt="image-20220128104741567"></p><p>如图</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128105142575.png" alt="image-20220128105142575"></p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128105202469.png" alt="image-20220128105202469"></p><p>这样就成功了<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220128105336668.png" alt="image-20220128105336668"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> TG </tag>
+            
+            <tag> hax </tag>
+            
+            <tag> VPS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>利用heroku和cf搭建免费节点</title>
+      <link href="/heroku/"/>
+      <url>/heroku/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>heroku为每个免费账户提供了每月550h的免费使用时间，今天我就教大家来使用heroku搭建节点。</p><h1 id="搭建节点"><a href="#搭建节点" class="headerlink" title="搭建节点"></a>搭建节点</h1><h2 id="注册账号"><a href="#注册账号" class="headerlink" title="注册账号"></a>注册账号</h2><h3 id="heroku"><a href="#heroku" class="headerlink" title="heroku"></a>heroku</h3><p>首先打开<a href="https://www.heroku.com/">heroku的官网</a>，点击singn up for free</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127180239634.png" alt="image-20220127180239634"></p><p>按照要求填就是，然后就是验证邮箱。<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127180841886.png" alt="image-20220127180841886"></p><p>他会给你发这么一封邮件，点击那条链接</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127180911464.png" alt="image-20220127180911464"></p><p>点击连接后，就是重置密码<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127181007335.png" alt="image-20220127181007335"></p><p>重置玩之后点击”click here to proceed“ ，就注册好了账号</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127181420538.png" alt="image-20220127181420538"></p><p>进入主页面之后点击“accept”就好了</p><h3 id="github"><a href="#github" class="headerlink" title="github"></a>github</h3><p>进入<a href="https:github.com">github</a>点击右上角的sign up ，输入你的邮箱，密码账户名</p><p>然后选n，一路continue<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127182404135.png" alt="image-20220127182404135"></p><p>过完人机验证后就是验证账号了<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127182441642.png" alt="image-20220127182441642"></p><p>复制你邮箱里码，就……自己看吧，咋填都没关系（别问，问就是懒</p><h3 id="cf"><a href="#cf" class="headerlink" title="cf"></a>cf</h3><p><a href="https://dash.cloudflare.com/">网址</a>自己注册吧，我懒</p><h2 id="搭建节点-1"><a href="#搭建节点-1" class="headerlink" title="搭建节点"></a>搭建节点</h2><h3 id="github-1"><a href="#github-1" class="headerlink" title="github"></a>github</h3><p><a href="https://github.com/Lbingyi/HerokuXray">github项目地址</a>进去后点击右上角的Fork按钮，然后修改项目名<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127183510191.png" alt="image-20220127183510191">修改完后提示绿色的钩就代表有用，然后点击“Rename”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127183650095.png" alt="image-20220127183650095"></p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127213407145.png" alt="image-20220127213407145"></p><p>点击这个小笔，在第24行代码后边，按图操作，然后在下边点击绿色的commit changes按钮，然后返回自己的仓库，点击这个按钮<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127184038519.png" alt="image-20220127184038519"></p><h3 id="heroku-1"><a href="#heroku-1" class="headerlink" title="heroku"></a>heroku</h3><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127184152600.png" alt="image-20220127184152600"></p><p>点击链接后输入你想要的名字，和选择地区</p><p>然后点击Deploy app，等待他部署完成<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127184543870.png" alt="image-20220127184543870"></p><p>点击view测试是否成功，如果显示这个页面就代表成功了，这个网页的地址要保存下来，待会要用到<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127184654579.png" alt="image-20220127184654579"></p><h3 id="配置workers"><a href="#配置workers" class="headerlink" title="配置workers"></a>配置workers</h3><p>打开cf，按图操作，改语言在右上角<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127185127512.png" alt="image-20220127185127512"></p><p>选择第一个，然后点创建服务，然后点击快速编辑</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127185213291.png" alt="image-20220127185213291"></p><p>然后全选，复制这一串代码，xxx修改你heroku刚才创建的项目名</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">const SingleDay = &#x27;xxx.herokuapp.com&#x27;  </span><br><span class="line">const DoubleDay = &#x27;xxx.herokuapp.com&#x27; </span><br><span class="line">addEventListener(                     </span><br><span class="line">    &quot;fetch&quot;,event =&gt; &#123;</span><br><span class="line">    </span><br><span class="line">        let nd = new Date();</span><br><span class="line">        if (nd.getDate()%2) &#123;</span><br><span class="line">            host = SingleDay</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            host = DoubleDay</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        let url=new URL(event.request.url);</span><br><span class="line">        url.hostname=host;</span><br><span class="line">        let request=new Request(url,event.request);</span><br><span class="line">        event. respondWith(</span><br><span class="line">            fetch(request)</span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure><p>点击发送，如果旁边出现了200 OK就代表成功了，然后点击保存并部署，还有发送旁边的网址也得记下来，也很重要</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127185632383.png" alt=""></p><h3 id="配置节点"><a href="#配置节点" class="headerlink" title="配置节点"></a>配置节点</h3><p><img src="https://gcore.jsdelivr.net/gh/imkcp-blog/photos@main/blog120220507174803.png" alt=""></p><p>参考配置</p><p>不会优选ip？<a href="https://blog.imkcp.xyz/2022/01/15/cf-ip/">看这里</a></p><h3 id="测速图"><a href="#测速图" class="headerlink" title="测速图"></a>测速图</h3><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127190508552.png" alt="image-20220127190508552"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Free </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CloudFlare </tag>
+            
+            <tag> 节点 </tag>
+            
+            <tag> 科学上网 </tag>
+            
+            <tag> github </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>白嫖raksmart的10美金来买VPS</title>
+      <link href="/raksmart/"/>
+      <url>/raksmart/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上期我不是发了IBM Linuxone的搭建节点教程，我真不希望有人说什么IBM小气，不给注册，搭完节点就封号。其实我觉得吧，IBM给的机器有那么高的配置，为什么一定要死磕节点呢？宝塔不香吗？</p><hr><p>今天我就教大家薅raksmart的VPS（只要能买到VPS，怎么撸都不会封）</p><h2 id="准备材料"><a href="#准备材料" class="headerlink" title="准备材料"></a>准备材料</h2><p>·一枚邮箱，一台能上网的智能手机或电脑，一个能注册账号的节点</p><h2 id="注册账号"><a href="#注册账号" class="headerlink" title="注册账号"></a>注册账号</h2><p>先打开<a href="http://raksmart.com">raksmart的官网</a>，点击右上角的“register”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127103817560.png" alt="image-20220127103817560"></p><p>如果成功出来了注册的界面那就说明没问题，注册信息就推荐写美国的虚拟信息 <a href="http://haoweichi.com">这是网站</a></p><h3 id="特殊情况"><a href="#特殊情况" class="headerlink" title="特殊情况"></a>特殊情况</h3><p>没图，希望有人私聊我给我一张，就是点击注册页面后，他会提示IP重复注册，请联系客服之类的，那就说明你注册的IP之前注册过了，得换IP，知道他显示能够注册账号</p><h3 id="发工单"><a href="#发工单" class="headerlink" title="发工单"></a>发工单</h3><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127104732010.png" alt="image-20220127104732010"></p><p>注册进去后，点击图上所示的位置，然后两个都写：新用户申请十美元</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127104801117.png" alt="image-20220127104801117"></p><p>然后点击“submit”提交，最后点“continue”就发工单了，然后就是等他审核完成，审核完成后，会在你邮箱里发送一封邮件<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127105009495.png" alt="image-20220127105009495"></p><p>长这个样子，如果失败了，也是IP的问题，所以懂了吧，注册这家厂商的账号并申请到十美元就是看IP</p><h2 id="买VPS"><a href="#买VPS" class="headerlink" title="买VPS"></a>买VPS</h2><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127105227402.png" alt="image-20220127105227402"></p><p>按照图上来，切记，除了美国以外的国家都不要买，速度拉胯，只有5M，地区可以随便选，网络就选大陆优化然后点击“continue”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127105438092.png" alt="image-20220127105438092"></p><p>输入优惠码：VPS-TP-30%dis ，再点击傍边橙色的按钮，就能减少30%的费用，这样你就能薅两台VPS了，在点击checkout</p><p>上面的小框框，然后就点击checkout，使用余额，等待他买完，这样你就拥有了一台VPS</p><h2 id="查看VPS"><a href="#查看VPS" class="headerlink" title="查看VPS"></a>查看VPS</h2><p>你可以把页面弄成中文<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220127105811918.png" alt="image-20220127105811918">门户首页/用户中心/我的产品与服务  依次点击，这样你就能看到你的VPS了，点击VPS，你就能看到你VPS的全部信息了</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 节点 </tag>
+            
+            <tag> 科学上网 </tag>
+            
+            <tag> VPS </tag>
+            
+            <tag> raksmart </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>IBMLinuONE搭建节点</title>
+      <link href="/ibmjiedian/"/>
+      <url>/ibmjiedian/</url>
+      
+        <content type="html"><![CDATA[<p>上一篇文章介绍了申请IBMLinuxONE教程，申请了VPS总要有地方用，所以今天就来教大家如何利用IBMLinuxONE搭建节点</p><hr><h2 id="连接VPS"><a href="#连接VPS" class="headerlink" title="连接VPS"></a>连接VPS</h2><p>打开Xshell，新建回话</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125192845767.png" alt="image-20220125192845767"></p><p>名称随便写，主机填昨天申请VPS的IP</p><p>然后点击“用户身份验证”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125193000296.png" alt="image-20220125193000296"></p><p>用户名填linux1，并把方法这一栏的“Public Key“给勾选上，然后点击“Public Key“再点旁边的”设置“</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125193123068.png" alt="image-20220125193123068"></p><p>用户秘钥就是创建VPS时下载的那个 xxxx.pem文件，我们再点击浏览，在点击导入，找到昨天保存的位置，然后双击就导入了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125193231144.png" alt="image-20220125193231144"></p><p>然后在选择（双击）刚才导入的秘钥，再点确定，最后点链接就行了<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125193451872.png" alt="image-20220125193451872"></p><p>这样就连接上了</p><p>PS:如果连接不上的话，试试重启VPS,办法总比困难多</p><h1 id="搭建节点"><a href="#搭建节点" class="headerlink" title="搭建节点"></a>搭建节点</h1><h2 id="Xray"><a href="#Xray" class="headerlink" title="Xray"></a>Xray</h2><p>自我认为Xray就是一个很全面的内核，支持vmess，vless，Trojan等协议的节点的搭建</p><h3 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h3><p>有个域名，并添加了A记录在这台VPS上，以CF举例：<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125194236377.png" alt="image-20220125194236377"></p><p>IPv4地址就填你VPS的IP保存之后就行了</p><h3 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h3><p>1.给VPS root权限，输入下面这个命令就行</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -i</span><br></pre></td></tr></table></figure><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125194334587.png" alt="image-20220125194334587"></p><p>2.输入Xray一键脚本</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash &lt;(curl -sL https://raw.githubusercontents.com/hijkpw/scripts/master/xray.sh)</span><br></pre></td></tr></table></figure><p>我以Trojan为例，输入端口密码，伪装站类型等</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125195112535.png" alt="image-20220125195112535"></p><p>具体的搭建可以参考我的，安装完后会出现这么一个页面</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125195249141.png" alt="image-20220125195249141"></p><h3 id="连接节点"><a href="#连接节点" class="headerlink" title="连接节点"></a>连接节点</h3><p>打开v2rayN新建一个Trojan节点，配置如下</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125195612258.png" alt="image-20220125195612258"></p><p>那么就完成了搭建节点的操作，放个测速图，自己体会</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125195909425.png" alt="image-20220125195909425"></p><h2 id="SS"><a href="#SS" class="headerlink" title="SS"></a>SS</h2><h3 id="搭建-1"><a href="#搭建-1" class="headerlink" title="搭建"></a>搭建</h3><p>1.首先当然是给root权限</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -i</span><br></pre></td></tr></table></figure><p>2.输入ss代码</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate -O shadowsocks-all.sh https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-all.sh &amp;&amp; chmod +x shadowsocks-all.sh &amp;&amp; ./shadowsocks-all.sh 2&gt;&amp;1 | tee shadowsocks-all.log</span><br></pre></td></tr></table></figure><p>3.选择ShadowSocks服务器类型（一定要选Shadowsocks-libev，否则无法使用！！！），接下输入密码、端口，选择加密方式，操作如下，然后按回车键<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125200441607.png" alt="image-20220125200441607"></p><p>等待安装完成，OK</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125200640284.png" alt="image-20220125200640284"></p><h3 id="连接节点-1"><a href="#连接节点-1" class="headerlink" title="连接节点"></a>连接节点</h3><p>把链接直接复制后导入到v2rayN中</p><p>测速图：</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125201631412.png" alt="image-20220125201631412"></p><h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>不要滥用，我亲身测试，以10MB每秒的速度跑2小时必定封号，封号了也别怪IBM小气</p><p>还有就是别用我博客里搭建的节点，用了也白用</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> IBM </tag>
+            
+            <tag> 节点 </tag>
+            
+            <tag> 科学上网 </tag>
+            
+            <tag> 域名 </tag>
+            
+            <tag> VPS </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>白嫖IBM LinuxONE的免费服务器</title>
+      <link href="/ibmlinuxone/"/>
+      <url>/ibmlinuxone/</url>
+      
+        <content type="html"><![CDATA[<p>IBM LinuxONE为每个账号提供了120天的免费虚拟服务器，但由于架构特殊有很多服务无法在这个vps上完成,例如:x-ui ,宝塔…我就不细说，下面我就教大家白嫖IBM LinuxONE的免费服务器。</p><hr><h2 id="材料"><a href="#材料" class="headerlink" title="材料"></a>材料</h2><p>· 一台能上网的电脑，一个邮箱(最好是大厂的邮箱例如gmail和outlook之类的)</p><h1 id="申请流程"><a href="#申请流程" class="headerlink" title="申请流程"></a>申请流程</h1><h2 id="申请账号"><a href="#申请账号" class="headerlink" title="申请账号"></a>申请账号</h2><p>1.打开<a href="https://linuxone.cloud.marist.edu/">IBMLIinuxONE的官网</a></p><p>2.点击”Register”<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125152330592.png" alt="image-20220125152330592"></p><p>3.注册账号<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125152526874.png" alt="image-20220125152526874"></p><p>填写信息，可参考图上的信息，然后点击那个橙色的按钮（我懒得打bushi</p><p>4.验证账号<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125152653342.png" alt="image-20220125152653342"></p><p>如果出现了上面这种情况，就说明一次成功了</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/second20220125103850.png" alt=""></p><p>如果是这样就说明使用了小厂的邮箱，或者注册时的IP不干净导致的，审核完之后邮箱就会有这么一封邮件<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125153111406.png" alt="image-20220125153111406"></p><p>点击链接来验证账户<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125153204051.png" alt="image-20220125153204051"></p><p>这样就代表成功了邮箱也会出现一封邮件<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125153232140.png" alt="image-20220125153232140"></p><p>6.登录账号验证邮箱成功后点击“Sgin in”输入账号密码登录<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125153417014.png" alt="image-20220125153417014"></p><h2 id="开VPS"><a href="#开VPS" class="headerlink" title="开VPS"></a>开VPS</h2><p>进入主页后点击 “Virtual Servers”</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125153612648.png" alt="image-20220125153612648"></p><p>点击Create</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125153729666.png" alt="image-20220125153729666"></p><p>填入或选择VPS的各种参数</p><p>PS: SSH Key需要自己创建，这么简单我就懒得写了，简直就是有手就行，实在不行你用浏览器自带的翻译，且创建完之后会自动下载key一定要保存好</p><p>填完之后点击Create<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125154055026.png" alt="image-20220125154055026"></p><p>等待之后，如果是这样的话不要慌，刷新下网页</p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125154135331.png" alt=""></p><p>这样就代表成功了，之后就是等待他创建<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220125154524716.png" alt="image-20220125154524716"></p><p>这样就正式申请到了VPS</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> VPS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> IBM </tag>
+            
+            <tag> 科学上网 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>使用github+picgo+jsdelivr搭建免费图床</title>
+      <link href="/tuchuang/"/>
+      <url>/tuchuang/</url>
+      
+        <content type="html"><![CDATA[<h1 id="搭建图床"><a href="#搭建图床" class="headerlink" title="搭建图床"></a>搭建图床</h1><h2 id="新建github仓库"><a href="#新建github仓库" class="headerlink" title="新建github仓库"></a>新建github仓库</h2><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220121124618717.png" alt="image-20220121124618717"></p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220121125150372.png" alt="image-20220121125150372"></p><h2 id="生成一个token"><a href="#生成一个token" class="headerlink" title="生成一个token"></a>生成一个token</h2><p>点击头像——”Settings“——”Developer settings”——“Personal access tokens”<img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220121125448965.png" alt="image-20220121125448965"></p><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220121125803608.png" alt=""></p><p>生成后复制</p><h2 id="配置picgo"><a href="#配置picgo" class="headerlink" title="配置picgo"></a>配置picgo</h2><p><img src="https://gcore.jsdelivr.net/gh/imkcpblog/chuang@main/secondimage-20220121125938242.png" alt="image-20220121125938242"></p><p>设定仓库名：你github的名字+刚刚设置的仓库名</p><p>设定分支名：默认为main</p><p>设置token：粘贴刚才复制的token</p><p>设置存储路径：填你想把图片放置的文件夹，入img/，这样你的的仓库下就会生成一个名img的文件夹，你存放的图片就在里面</p><p>设定自定义域名：它的的作用是，在图片上传后，PicGo 会按照自定义域名 + 上传的图片名的方式生成访问链接，放到粘贴板上，因为我们要使用 jsDelivr 加速访问，所以可以设置为 </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://gcore.jsdelivr.net/gh/用户名/仓库名@main</span><br></pre></td></tr></table></figure><p>替换上面的用户名和仓库名</p><p>然后点击确定就行了</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Free </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> github </tag>
+            
+            <tag> 图床 </tag>
+            
+            <tag> 博客 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>使用CloudFlareSpeedTest优选出适合自己的CF IP</title>
+      <link href="/cf-ip/"/>
+      <url>/cf-ip/</url>
+      
+        <content type="html"><![CDATA[<h1 id="准备材料"><a href="#准备材料" class="headerlink" title="准备材料"></a>准备材料</h1><p>1.一台电脑或 vps</p><h1 id="步骤方法"><a href="#步骤方法" class="headerlink" title="步骤方法"></a>步骤方法</h1><h2 id="下载文件"><a href="#下载文件" class="headerlink" title="下载文件"></a>下载文件</h2><p>1.打开<a href="https://github.com/XIU2/CloudflareSpeedTest">项目主页</a>，点击”Releses”</p><p>2.根据你自己电脑选择对应的版本</p><p><img src="https://cdn.jsdelivr.net/gh/Misaka-blog/tuchuang/20220115204837.png" alt=""></p><p>3.解压刚下载的文件，打开“CloudFlareST.exe”</p><p><img src="https://cdn.jsdelivr.net/gh/Misaka-blog/tuchuang/20220115204919.png" alt="img"></p><h2 id="优选-IP"><a href="#优选-IP" class="headerlink" title="优选 IP"></a>优选 IP</h2><p>1.等待优选 IP</p><p>2.优选 IP 完成，IP 会按照速度由上到下排序，复制出你想要的 IP</p><p><img src="https://cdn.jsdelivr.net/gh/Misaka-blog/tuchuang/20220115205451.png" alt="img"></p><h1 id="声明-本博客转自小御坂的破站"><a href="#声明-本博客转自小御坂的破站" class="headerlink" title="声明:本博客转自小御坂的破站!"></a>声明:本博客转自<a href="https://owo.misaka.rest/cf-ip/">小御坂的破站</a>!</h1>]]></content>
+      
+      
+      <categories>
+          
+          <category> Free </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CloudFlare </tag>
+            
+            <tag> CDN </tag>
+            
+            <tag> 节点 </tag>
+            
+            <tag> 科学上网 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+    
+    
+    <entry>
+      <title>about</title>
+      <link href="/about/index.html"/>
+      <url>/about/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>标签</title>
+      <link href="/tags/index.html"/>
+      <url>/tags/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>link</title>
+      <link href="/link/index.html"/>
+      <url>/link/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+  
+</search>
