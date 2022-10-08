@@ -252,13 +252,13 @@
       
         <tags>
             
-            <tag> github </tag>
-            
             <tag> CloudFlare </tag>
             
-            <tag> VPS </tag>
+            <tag> github </tag>
             
             <tag> 域名 </tag>
+            
+            <tag> VPS </tag>
             
         </tags>
       
@@ -488,13 +488,13 @@
       
         <tags>
             
-            <tag> github </tag>
-            
             <tag> CloudFlare </tag>
             
             <tag> 节点 </tag>
             
             <tag> 科学上网 </tag>
+            
+            <tag> github </tag>
             
         </tags>
       
@@ -556,9 +556,9 @@
             
             <tag> 科学上网 </tag>
             
-            <tag> VPS </tag>
-            
             <tag> 域名 </tag>
+            
+            <tag> VPS </tag>
             
         </tags>
       
@@ -657,17 +657,6 @@
     
     
     <entry>
-      <title>分类</title>
-      <link href="/categories/index.html"/>
-      <url>/categories/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>about</title>
       <link href="/about/index.html"/>
       <url>/about/index.html</url>
@@ -679,9 +668,9 @@
     
     
     <entry>
-      <title>link</title>
-      <link href="/link/index.html"/>
-      <url>/link/index.html</url>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -693,6 +682,17 @@
       <title>标签</title>
       <link href="/tags/index.html"/>
       <url>/tags/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>link</title>
+      <link href="/link/index.html"/>
+      <url>/link/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
